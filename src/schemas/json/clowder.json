@@ -1,0 +1,229 @@
+{
+  "title": "JSON schema for Clowder configuration files",
+  "$id": "http://json.schemastore.org/clowder",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "arrayOfNonEmptyStrings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      }
+    },
+    "stringArrayUnique": {
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/nonEmptyString"
+      }
+    },
+    "gitProjectName": {
+      "description": "URL components for specific git project",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      ]
+    },
+    "gitSourceName": {
+      "description": "Git source name",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      ]
+    },
+    "gitRemoteName": {
+      "description": "Git remote name to use",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/nonEmptyString"
+        }
+      ]
+    },
+    "depth": {
+      "description": "Git clone depth",
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "recursive": {
+      "description": "Whether to clone project submodules recursively",
+      "type": "boolean"
+    },
+    "ref": {
+      "description": "Git ref",
+      "type": "string",
+      "pattern": "^(refs/heads/.+|refs/tags/.+|[a-fA-F0-9]{40})"
+    },
+    "protocol": {
+      "description": "Git protocol type",
+      "type": "string",
+      "enum": [
+        "https",
+        "ssh"
+      ]
+    },
+    "source": {
+      "description": "A map defining a git repo source",
+      "type": "object",
+      "required": [
+        "name",
+        "url"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Name of git repo source",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/nonEmptyString"
+            }
+          ]
+        },
+        "url": {
+          "description": "Base url of git repo source",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/nonEmptyString"
+            }
+          ]
+        },
+        "protocol": {
+          "$ref": "#/definitions/protocol"
+        }
+      }
+    },
+    "fork": {
+      "description": "A map defining a git fork",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/gitProjectName"
+        },
+        "source": {
+          "$ref": "#/definitions/gitSourceName"
+        },
+        "ref": {
+          "$ref": "#/definitions/ref"
+        },
+        "remote": {
+          "$ref": "#/definitions/gitRemoteName"
+        }
+      }
+    },
+    "project": {
+      "description": "A map defining a git project",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/gitProjectName"
+        },
+        "path": {
+          "description": "Path to clone project on disk",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/nonEmptyString"
+            }
+          ]
+        },
+        "source": {
+          "$ref": "#/definitions/gitSourceName"
+        },
+        "ref": {
+          "$ref": "#/definitions/ref"
+        },
+        "remote": {
+          "$ref": "#/definitions/gitRemoteName"
+        },
+        "groups": {
+          "description": "Groups project belongs to",
+          "oneOf": [
+            {
+              "$ref": "#/definitions/stringArrayUnique"
+            }
+          ]
+        },
+        "fork": {
+          "$ref": "#/definitions/fork"
+        },
+        "depth": {
+          "$ref": "#/definitions/depth"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "version",
+    "defaults",
+    "sources",
+    "projects"
+  ],
+  "properties": {
+    "version": {
+      "description": "The version field is intended to be used in order to issue warnings for deprecation or breaking changes.",
+      "default": 2,
+      "enum": [
+        2
+      ]
+    },
+    "defaults": {
+      "description": "Default inherited by projects and sources",
+      "type": "object",
+      "required": [
+        "ref",
+        "remote",
+        "source",
+        "protocol"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/gitSourceName"
+        },
+        "ref": {
+          "$ref": "#/definitions/ref"
+        },
+        "remote": {
+          "$ref": "#/definitions/gitRemoteName"
+        },
+        "protocol": {
+          "$ref": "#/definitions/protocol"
+        },
+        "recursive": {
+          "$ref": "#/definitions/recursive"
+        },
+        "depth": {
+          "$ref": "#/definitions/depth"
+        }
+      }
+    },
+    "sources": {
+      "description": "List of sources",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/source"
+      }
+    },
+    "projects": {
+      "description": "List of projects",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/project"
+      }
+    }
+  }
+}

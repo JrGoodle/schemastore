@@ -282,6 +282,15 @@
       "url": "http://json.schemastore.org/clasp"
     },
     {
+      "name": "clowder",
+      "description": "Clowder multi-repository management utility",
+      "fileMatch": [
+        "clowder.yaml",
+        "*.clowder.yaml"
+      ],
+      "url": "http://json.schemastore.org/clowder"
+    },
+    {
       "name": "JSON schema for Codecov configuration files",
       "description": "Schema for codecov.yml files.",
       "fileMatch": [
